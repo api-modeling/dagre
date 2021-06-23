@@ -1,6 +1,6 @@
 var expect = require("./chai").expect;
-var Graph = require("../lib/graphlib").Graph;
-var parentDummyChains = require("../lib/parent-dummy-chains");
+var Graph = require("../src/graphlib").Graph;
+var parentDummyChains = require("../src/parent-dummy-chains");
 
 describe("parentDummyChains", function() {
   var g;

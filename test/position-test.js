@@ -1,6 +1,6 @@
 var expect = require("./chai").expect;
-var position = require("../lib/position");
-var Graph = require("../lib/graphlib").Graph;
+var position = require("../src/position");
+var Graph = require("../src/graphlib").Graph;
 
 describe("position", function() {
   var g;

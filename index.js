@@ -20,14 +20,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-module.exports = {
-  graphlib: require("./lib/graphlib"),
+// module.exports = {
+//   graphlib: require("./src/graphlib"),
 
-  layout: require("./lib/layout"),
-  debug: require("./lib/debug"),
-  util: {
-    time: require("./lib/util").time,
-    notime: require("./lib/util").notime
-  },
-  version: require("./lib/version")
-};
+//   layout: require("./src/layout"),
+//   debug: require("./src/debug"),
+//   util: {
+//     time: require("./src/util").time,
+//     notime: require("./src/util").notime
+//   },
+//   version: require("./src/version")
+// };
+export * as graphlib from '@api-modeling/graphlib';
+export { default as layout } from './src/layout.js';
+export { default as version } from './src/version.js';

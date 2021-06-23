@@ -1,7 +1,7 @@
 /bench
-/build
-/Makefile
 /node_modules
-/src
+/tasks
 /test
-/tmp
+/coverage
+/.vscode
+.gitignore

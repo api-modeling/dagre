@@ -1,8 +1,8 @@
 var _ = require("lodash");
 var expect = require("./chai").expect;
-var Graph = require("../lib/graphlib").Graph;
-var findCycles = require("../lib/graphlib").alg.findCycles;
-var greedyFAS = require("../lib/greedy-fas");
+var Graph = require("../src/graphlib").Graph;
+var findCycles = require("../src/graphlib").alg.findCycles;
+var greedyFAS = require("../src/greedy-fas");
 
 describe("greedyFAS", function() {
   var g;

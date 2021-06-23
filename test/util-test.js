@@ -2,8 +2,8 @@
 
 var _ = require("lodash");
 var expect = require("./chai").expect;
-var Graph = require("../lib/graphlib").Graph;
-var util = require("../lib/util");
+var Graph = require("../src/graphlib").Graph;
+var util = require("../src/util");
 
 describe("util", function() {
   describe("simplify", function() {
