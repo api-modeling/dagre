@@ -1,44 +1,76 @@
 {
-  "name": "dagre",
-  "version": "0.8.6-pre",
+  "name": "@api-modeling/dagre",
+  "version": "0.9.0",
   "description": "Graph layout for JavaScript",
   "author": "Chris Pettitt <cpettitt@gmail.com>",
   "contributors": [
-    "Matthew Dahl (https://github.com/sandersky)"
+    {
+      "name": "Pawel Uchida-Psztyc",
+      "email": "pawel.psztyc@mulesoft.com"
+    }
   ],
   "license": "MIT",
   "main": "index.js",
+  "module": "index.js",
+  "type": "module",
   "keywords": [
     "graph",
     "layout"
   ],
   "dependencies": {
-    "graphlib": "^2.1.8",
-    "lodash": "^4.17.19"
+    "@api-modeling/graphlib": "^3.0.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4",
+    "@esm-bundle/chai": "^4.3.4",
+    "@types/benchmark": "^2.1.0",
+    "@types/graphlib": "^2.1.7",
+    "@types/lodash-es": "^4.17.4",
+    "@types/sprintf": "^0.1.0",
+    "@web/test-runner": "^0.13.12",
+    "@web/test-runner-playwright": "^0.8.6",
     "benchmark": "2.1.4",
-    "browserify": "16.5.1",
-    "chai": "4.2.0",
-    "eslint": "7.4.0",
-    "jshint": "2.11.1",
-    "jshint-stylish": "2.2.1",
-    "karma": "5.1.0",
-    "karma-chrome-launcher": "3.1.0",
-    "karma-firefox-launcher": "1.3.0",
-    "karma-mocha": "2.0.1",
-    "karma-phantomjs-launcher": "1.0.4",
-    "karma-requirejs": "1.1.0",
-    "karma-safari-launcher": "1.0.0",
-    "mocha": "8.2.0",
-    "phantomjs-prebuilt": "2.1.16",
-    "requirejs": "2.3.6",
-    "semver": "7.3.2",
-    "sprintf": "0.1.5",
-    "uglify-js": "3.10.0"
+    "eslint": "^7.29.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-no-only-tests": "^2.6.0",
+    "husky": "^6.0.0",
+    "lint-staged": "^11.0.0",
+    "lodash-es": "^4.17.21",
+    "sprintf": "^0.1.5",
+    "typescript": "^4.3.2",
+    "typescript-lit-html-plugin": "^0.9.0"
+  },
+  "scripts": {
+    "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
+    "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
+    "lint:types": "tsc",
+    "lint": "npm run lint:eslint",
+    "format": "npm run format:eslint",
+    "test": "web-test-runner test/**/*.test.js test/*.test.js --coverage --node-resolve --playwright --browsers chromium firefox webkit",
+    "test:watch": "web-test-runner test/**/*.test.js test/*.test.js --node-resolve --watch --playwright --browsers chromium",
+    "benchmark": "node tasks/bench.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dagrejs/dagre.git"
+    "url": "https://github.com/api-modeling/dagre.git"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "arrowParens": "always",
+    "printWidth": 240,
+    "trailingComma": "all"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ]
   }
 }
