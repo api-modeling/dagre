@@ -30,6 +30,7 @@
     "pf",
     "rankdir",
     "ranksep",
+    "selfedge",
     "unsortable"
   ]
 }

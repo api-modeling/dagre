@@ -61,23 +61,17 @@ export function addDummyNode(g, type, attrs, name) {
  */
 export function simplify(g) {
   const simplified = new Graph().setGraph(g.graph());
-  const nodes = g.nodes();
-  if (nodes) {
-    nodes.forEach((v) => {
-      simplified.setNode(v, g.node(v));
+  (g.nodes() || []).forEach((v) => {
+    simplified.setNode(v, g.node(v));
+  });
+  (g.edges() || []).forEach((e) => {
+    const simpleLabel = simplified.edge(e.v, e.w) || { weight: 0, minlen: 1 };
+    const label = g.edge(e);
+    simplified.setEdge(e.v, e.w, {
+      weight: simpleLabel.weight + label.weight,
+      minlen: Math.max(simpleLabel.minlen, label.minlen)
     });
-  }
-  const edges = g.edges();
-  if (edges) {
-    edges.forEach((e) => {
-      const simpleLabel = simplified.edge(e.v, e.w) || { weight: 0, minlen: 1 };
-      const label = g.edge(e);
-      simplified.setEdge(e.v, e.w, {
-        weight: simpleLabel.weight + label.weight,
-        minlen: Math.max(simpleLabel.minlen, label.minlen)
-      });
-    });
-  }
+  });
   return simplified;
 }
 
@@ -87,18 +81,14 @@ export function simplify(g) {
  */
 export function asNonCompoundGraph(g) {
   const simplified = new Graph({ multigraph: g.isMultigraph() }).setGraph(g.graph());
-  const nodes = g.nodes();
-  if (nodes) {
-    nodes.forEach((v) => {
+  (g.nodes() || []).forEach((v) => {
+    if (!g.children(v).length) {
       simplified.setNode(v, g.node(v));
-    });
-  }
-  const edges = g.edges();
-  if (edges) {
-    edges.forEach((e) => {
-      simplified.setEdge(e, g.edge(e));
-    });
-  }
+    }
+  });
+  (g.edges() || []).forEach((e) => {
+    simplified.setEdge(e, g.edge(e));
+  });
   return simplified;
 }
 
@@ -262,12 +252,8 @@ export function normalizeRanks(g) {
 export function removeEmptyRanks(g) {
   // Ranks may not start at 0, so we need to offset them
   const offset = minRank(g) || 0;
-  const nodes = g.nodes();
-  if (!nodes) {
-    return;
-  }
   const layers = [];
-  nodes.forEach((v) => {
+  (g.nodes() || []).forEach((v) => {
     const rank = g.node(v).rank - offset;
     if (!layers[rank]) {
       layers[rank] = [];
@@ -276,15 +262,18 @@ export function removeEmptyRanks(g) {
   });
   let delta = 0;
   const { nodeRankFactor } = g.graph();
-  layers.forEach((vs, i) => {
+  // prefer a loop over .forEach here as array items may be undefined (items, not values).
+  for (let i = 0, len = layers.length; i < len; i++) {
+    const vs = layers[i];
     if (typeof vs === 'undefined' && i % nodeRankFactor !== 0) {
       --delta;
     } else if (delta && Array.isArray(vs)) {
-      vs.forEach((v) => {
+      for (let j = 0; j < vs.length; j++) {
+        const v = vs[j];
         g.node(v).rank += delta;
-      });
+      }
     }
-  });
+  }
 }
 
 /**
@@ -368,7 +357,7 @@ export function flatRange(start, end, step = 1) {
     end = start;
     start = 0;
   }
-  let len = Math.max(end - start, 0);
+  let len = Math.max(Math.ceil((end - start) / (step || 1)), 0);
   let index = -1;
   /** @type number[] */
   const range = Array(len);

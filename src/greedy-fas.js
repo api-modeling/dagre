@@ -183,7 +183,7 @@ function flatten(array) {
  * adjusts that from the paper to allow for weighted edges.
  * 
  * @param {Graph} g
- * @param {(edge: Edge) => number} weightFn 
+ * @param {(edge: Edge) => number=} weightFn 
  */
 export default function greedyFAS(g, weightFn) {
   if (g.nodeCount() <= 1) {

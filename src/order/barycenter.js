@@ -8,7 +8,7 @@
  * @returns {BaryCenter[]}
  */
 export default function barycenter(g, movable) {
-  return movable.map((v) => {
+  return (movable || []).map((v) => {
     const inV = g.inEdges(v);
     if (!inV.length) {
       return /** @type BaryCenter */ ({ v });

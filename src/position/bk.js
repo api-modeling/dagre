@@ -367,7 +367,7 @@ export function horizontalCompaction(g, layering, root, align, reverseSep=false)
    * @param {NodeIdentifier} elem
    */
   function pass1(elem) {
-    xs[elem] = blockG.inEdges(elem).reduce((acc, e) => Math.max(acc, xs[e.v] + blockG.edge(e)), 0);
+    xs[elem] = blockG.inEdges(elem).reduce((acc, e) => Math.max(acc, xs[e.v] + (blockG.edge(e) || Number.NaN)), 0);
   }
 
   /**
@@ -456,7 +456,7 @@ export function findSmallestWidthAlignment(g, xss) {
  * @param {Record<NodeIdentifier, number>} alignTo
  */
 export function alignCoordinates(xss, alignTo) {
-  const alignToVals = Object.values(alignTo);
+  const alignToVals = alignTo ? Object.values(alignTo) : [];
   const alignToMin = Math.min(...alignToVals);
   const alignToMax = Math.max(...alignToVals);
 

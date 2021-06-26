@@ -26,9 +26,10 @@ function positionY(g) {
  */
 export default function position(g) {
   const graph = asNonCompoundGraph(g);
-
+  
   positionY(graph);
-  Object.entries(positionX(g)).forEach(([v, x]) => {
+  const positioned = positionX(graph);
+  Object.entries(positioned).forEach(([v, x]) => {
     g.node(v).x = x;
   });
 }

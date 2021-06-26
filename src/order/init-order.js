@@ -20,7 +20,6 @@ export default function initOrder(g) {
   const simpleNodes = g.nodes().filter(v => !g.children(v).length);
   const maxRank = Math.max(...simpleNodes.map(v => g.node(v).rank));
   const layers = new Array(maxRank + 1).fill(0).map(() => []);
-
   /**
    * @param {NodeIdentifier} v
    */
@@ -40,6 +39,5 @@ export default function initOrder(g) {
     return ra - rb;
   });
   orderedVs.forEach(dfs);
-
   return layers;
 }

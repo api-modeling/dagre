@@ -1,34 +1,42 @@
-var _ = require("lodash");
-var expect = require("./chai").expect;
-var acyclic = require("../src/acyclic");
-var Graph = require("../src/graphlib").Graph;
-var findCycles = require("../src/graphlib").alg.findCycles;
+import _ from 'lodash-es';
+import { expect } from '@esm-bundle/chai';
+import { Graph, alg } from '@api-modeling/graphlib';
+import * as acyclic from "../src/acyclic.js";
 
-describe("acyclic", function() {
-  var ACYCLICERS = [
+const { findCycles } = alg;
+
+function stripLabel(edge) {
+  const c = _.clone(edge);
+  delete c.label;
+  return c;
+}
+
+describe("acyclic", () => {
+  const ACYCLICERS = [
     "greedy",
     "dfs",
     "unknown-should-still-work"
   ];
-  var g;
+  /** @type Graph */
+  let g;
 
-  beforeEach(function() {
+  beforeEach(() => {
     g = new Graph({ multigraph: true })
-      .setDefaultEdgeLabel(function() { return { minlen: 1, weight: 1 }; });
+      .setDefaultEdgeLabel(() => ({ minlen: 1, weight: 1 }));
   });
 
-  _.forEach(ACYCLICERS, function(acyclicer) {
-    describe(acyclicer, function() {
-      beforeEach(function() {
-        g.setGraph({ acyclicer: acyclicer });
+  ACYCLICERS.forEach((acyclicer) => {
+    describe(acyclicer, () => {
+      beforeEach(() => {
+        g.setGraph({ acyclicer });
       });
 
-      describe("run", function() {
-        it("does not change an already acyclic graph", function() {
+      describe("run", () => {
+        it("does not change an already acyclic graph", () => {
           g.setPath(["a", "b", "d"]);
           g.setPath(["a", "c", "d"]);
           acyclic.run(g);
-          var results = _.map(g.edges(), stripLabel);
+          const results = _.map(g.edges(), stripLabel);
           expect(_.sortBy(results, ["v", "w"])).to.eql([
             { v: "a", w: "b" },
             { v: "a", w: "c" },
@@ -37,13 +45,13 @@ describe("acyclic", function() {
           ]);
         });
 
-        it("breaks cycles in the input graph", function() {
+        it("breaks cycles in the input graph", () => {
           g.setPath(["a", "b", "c", "d", "a"]);
           acyclic.run(g);
           expect(findCycles(g)).to.eql([]);
         });
 
-        it("creates a multi-edge where necessary", function() {
+        it("creates a multi-edge where necessary", () => {
           g.setPath(["a", "b", "a"]);
           acyclic.run(g);
           expect(findCycles(g)).to.eql([]);
@@ -56,8 +64,8 @@ describe("acyclic", function() {
         });
       });
 
-      describe("undo", function() {
-        it("does not change edges where the original graph was acyclic", function() {
+      describe("undo", () => {
+        it("does not change edges where the original graph was acyclic", () => {
           g.setEdge("a", "b", { minlen: 2, weight: 3 });
           acyclic.run(g);
           acyclic.undo(g);
@@ -65,7 +73,7 @@ describe("acyclic", function() {
           expect(g.edges()).to.have.length(1);
         });
 
-        it("can restore previosuly reversed edges", function() {
+        it("can restore previosuly reversed edges", () => {
           g.setEdge("a", "b", { minlen: 2, weight: 3 });
           g.setEdge("b", "a", { minlen: 3, weight: 4 });
           acyclic.run(g);
@@ -78,10 +86,10 @@ describe("acyclic", function() {
     });
   });
 
-  describe("greedy-specific functionality", function() {
-    it("prefers to break cycles at low-weight edges", function() {
+  describe("greedy-specific functionality", () => {
+    it("prefers to break cycles at low-weight edges", () => {
       g.setGraph({ acyclicer: "greedy" });
-      g.setDefaultEdgeLabel(function() { return { minlen: 1, weight: 2 }; });
+      g.setDefaultEdgeLabel(() => ({ minlen: 1, weight: 2 }));
       g.setPath(["a", "b", "c", "d", "a"]);
       g.setEdge("c", "d", { weight: 1 });
       acyclic.run(g);
@@ -90,9 +98,3 @@ describe("acyclic", function() {
     });
   });
 });
-
-function stripLabel(edge) {
-  var c = _.clone(edge);
-  delete c.label;
-  return c;
-}

@@ -4,7 +4,7 @@ import { Graph } from '@api-modeling/graphlib';
 import * as acyclic from "./acyclic.js";
 import * as normalize from "./normalize.js";
 import rank from "./rank/index.js";
-import { normalizeRanks, removeEmptyRanks, asNonCompoundGraph, addDummyNode, intersectRect, buildLayerMatrix, time, notime } from "./util.js";
+import { normalizeRanks, removeEmptyRanks, asNonCompoundGraph, addDummyNode, intersectRect, buildLayerMatrix, time } from "./util.js";
 import parentDummyChains from "./parent-dummy-chains.js";
 import * as nestingGraph from "./nesting-graph.js";
 import addBorderSegments from "./add-border-segments.js";
@@ -168,7 +168,6 @@ function removeBorderNodes(g) {
       const b = g.node(node.borderBottom);
       const l = g.node(node.borderLeft[node.borderLeft.length - 1]);
       const r = g.node(node.borderRight[node.borderRight.length - 1]);
-
       node.width = Math.abs(r.x - l.x);
       node.height = Math.abs(b.y - t.y);
       node.x = l.x + node.width / 2;
@@ -294,7 +293,7 @@ function reversePointsForReversedEdges(g) {
  * @param {Graph} g
  * @param {Function} timeFn
  */
-function runLayout(g, timeFn) {
+function runLayoutTime(g, timeFn) {
   timeFn("    makeSpaceForEdgeLabels", () => { makeSpaceForEdgeLabels(g); });
   timeFn("    removeSelfEdges",        () => { removeSelfEdges(g); });
   timeFn("    acyclic",                () => { acyclic.run(g); });
@@ -322,6 +321,38 @@ function runLayout(g, timeFn) {
   timeFn("    assignNodeIntersects",   () => { assignNodeIntersects(g); });
   timeFn("    reversePoints",          () => { reversePointsForReversedEdges(g); });
   timeFn("    acyclic.undo",           () => { acyclic.undo(g); });
+}
+/**
+ * @param {Graph} g
+ */
+function runLayout(g) {
+  makeSpaceForEdgeLabels(g);
+  removeSelfEdges(g);
+  acyclic.run(g);
+  nestingGraph.run(g);
+  rank(asNonCompoundGraph(g));
+  injectEdgeLabelProxies(g);
+  removeEmptyRanks(g);
+  nestingGraph.cleanup(g);
+  normalizeRanks(g);
+  assignRankMinMax(g);
+  removeEdgeLabelProxies(g);
+  normalize.run(g);
+  parentDummyChains(g);
+  addBorderSegments(g);
+  order(g);
+  insertSelfEdges(g);
+  coordinateSystem.adjust(g);
+  position(g);
+  positionSelfEdges(g);
+  removeBorderNodes(g);
+  normalize.undo(g);
+  fixupEdgeLabelCoords(g);
+  coordinateSystem.undo(g);
+  translateGraph(g);
+  assignNodeIntersects(g);
+  reversePointsForReversedEdges(g);
+  acyclic.undo(g);
 }
 
 /**
@@ -383,7 +414,7 @@ const edgeAttrs = ["labelpos"];
 
 function canonicalize(attrs={}) {
   const newAttrs = {};
-  for (const [v, k] of Object.entries(attrs)) {
+  for (const [k, v] of Object.entries(attrs)) {
     newAttrs[k.toLowerCase()] = v;
   }
   return newAttrs;
@@ -397,7 +428,9 @@ function canonicalize(attrs={}) {
 function selectNumberAttrs(obj, attrs) {
   const picked = {};
   attrs.forEach((k) => {
-    picked[k] = Number(obj[k]);
+    if (typeof obj[k] === 'number' || !!obj[k]) {
+      picked[k] = Number(obj[k]);
+    }
   });
   return picked;
 }
@@ -416,14 +449,15 @@ function buildLayoutGraph(inputGraph) {
 
   const ga = {};
   graphAttrs.forEach((k) => {
-    ga[k] = graph[k];
+    if (typeof graph[k] !== 'undefined' && graph[k] !== null) {
+      ga[k] = graph[k];
+    }
   });
   g.setGraph({
     ...graphDefaults,
     ...selectNumberAttrs(graph, graphNumAttrs),
     ...ga,
   });
-
   const nodes = inputGraph.nodes() || [];
   nodes.forEach((v) => {
     const node = canonicalize(inputGraph.node(v));
@@ -445,7 +479,9 @@ function buildLayoutGraph(inputGraph) {
     const edge = canonicalize(inputGraph.edge(e));
     const ea = {};
     edgeAttrs.forEach((k) => {
-      ea[k] = edge[k];
+      if (typeof edge[k] !== 'undefined' && edge[k] !== null) {
+        ea[k] = edge[k];
+      }
     });
     const value = {
       ...edgeDefaults,
@@ -458,16 +494,26 @@ function buildLayoutGraph(inputGraph) {
   return g;
 }
 
+/**
+ * @param {Graph} g
+ */
+function layoutTiming(g) {
+  time("layout", () => {
+    const layoutGraph = time("  buildLayoutGraph", () => buildLayoutGraph(g));
+    time("  runLayout",        () => { runLayoutTime(layoutGraph, time); });
+    time("  updateInputGraph", () => { updateInputGraph(g, layoutGraph); });
+  });
+}
 
 /**
  * @param {Graph} g
- * @param {LayoutOptions} opts
+ * @param {LayoutOptions=} opts
  */
-export default function layout(g, opts) {
-  const timeFn = opts && opts.debugTiming ? time : notime;
-  timeFn("layout", () => {
-    const layoutGraph = timeFn("  buildLayoutGraph", () => buildLayoutGraph(g));
-    timeFn("  runLayout",        () => { runLayout(layoutGraph, timeFn); });
-    timeFn("  updateInputGraph", () => { updateInputGraph(g, layoutGraph); });
-  });
+export default function layout(g, opts={}) {
+  if (opts.debugTiming) {
+    layoutTiming(g);
+  }
+  const layoutGraph = buildLayoutGraph(g);
+  runLayout(layoutGraph);
+  updateInputGraph(g, layoutGraph);
 }

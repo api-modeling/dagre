@@ -14,7 +14,7 @@ For more details, including examples and configuration options, please see our
 
 This is a port of the [dagrejs/dagre](https://github.com/dagrejs/dagre) library that is built for ESM and with types support. This library has no significant changes to the logic of the library.
 
-**MuleSoft nor Salesforce is not association with the original authors of the library and does not provide support for it.**
+**MuleSoft nor Salesforce is not associated with the original authors of the library and does not provide support for it.**
 
 ## Usage
 

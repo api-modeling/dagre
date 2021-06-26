@@ -69,17 +69,16 @@ export default function order(g) {
   const mr = maxRank(g);
   const downLayerGraphs = buildLayerGraphs(g, flatRange(1, mr + 1), "inEdges");
   const upLayerGraphs = buildLayerGraphs(g, flatRange(mr - 1, -1, -1), "outEdges");
-
+  
   let layering = initOrder(g);
   assignOrder(g, layering);
-
+  
   let bestCC = Number.POSITIVE_INFINITY;
   /** @type NodeIdentifier[][] */
   let best;
 
   for (let i = 0, lastBest = 0; lastBest < 4; ++i, ++lastBest) {
     sweepLayerGraphs(i % 2 ? downLayerGraphs : upLayerGraphs, i % 4 >= 2);
-
     layering = buildLayerMatrix(g);
     const cc = crossCount(g, layering);
     if (cc < bestCC) {
@@ -88,6 +87,5 @@ export default function order(g) {
       bestCC = cc;
     }
   }
-
   assignOrder(g, best);
 }

@@ -1,17 +1,22 @@
-var _ = require("lodash");
-var expect = require("./chai").expect;
-var normalize = require("../src/normalize");
-var Graph = require("../src/graphlib").Graph;
+import _ from 'lodash-es';
+import { expect } from '@esm-bundle/chai';
+import { Graph } from '@api-modeling/graphlib';
+import * as normalize from "../src/normalize.js";
 
-describe("normalize", function() {
-  var g;
+function incidentNodes(edge) {
+  return { v: edge.v, w: edge.w };
+}
 
-  beforeEach(function() {
+describe("normalize", () => {
+  /** @type Graph */
+  let g;
+
+  beforeEach(() => {
     g = new Graph({ multigraph: true, compound: true }).setGraph({});
   });
 
-  describe("run", function() {
-    it("does not change a short edge", function() {
+  describe("run", () => {
+    it("does not change a short edge", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 1 });
       g.setEdge("a", "b", {});
@@ -23,7 +28,7 @@ describe("normalize", function() {
       expect(g.node("b").rank).to.equal(1);
     });
 
-    it("splits a two layer edge into two segments", function() {
+    it("splits a two layer edge into two segments", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 2 });
       g.setEdge("a", "b", {});
@@ -31,7 +36,7 @@ describe("normalize", function() {
       normalize.run(g);
 
       expect(g.successors("a")).to.have.length(1);
-      var successor = g.successors("a")[0];
+      const successor = g.successors("a")[0];
       expect(g.node(successor).dummy).to.equal("edge");
       expect(g.node(successor).rank).to.equal(1);
       expect(g.successors(successor)).to.eql(["b"]);
@@ -42,7 +47,7 @@ describe("normalize", function() {
       expect(g.graph().dummyChains[0]).to.equal(successor);
     });
 
-    it("assigns width = 0, height = 0 to dummy nodes by default", function() {
+    it("assigns width = 0, height = 0 to dummy nodes by default", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 2 });
       g.setEdge("a", "b", { width: 10, height: 10 });
@@ -50,25 +55,25 @@ describe("normalize", function() {
       normalize.run(g);
 
       expect(g.successors("a")).to.have.length(1);
-      var successor = g.successors("a")[0];
+      const successor = g.successors("a")[0];
       expect(g.node(successor).width).to.equal(0);
       expect(g.node(successor).height).to.equal(0);
     });
 
-    it("assigns width and height from the edge for the node on labelRank", function() {
+    it("assigns width and height from the edge for the node on labelRank", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 4 });
       g.setEdge("a", "b", { width: 20, height: 10, labelRank: 2 });
 
       normalize.run(g);
 
-      var labelV = g.successors(g.successors("a")[0])[0];
-      var labelNode = g.node(labelV);
+      const labelV = g.successors(g.successors("a")[0])[0];
+      const labelNode = g.node(labelV);
       expect(labelNode.width).to.equal(20);
       expect(labelNode.height).to.equal(10);
     });
 
-    it("preserves the weight for the edge", function() {
+    it("preserves the weight for the edge", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 2 });
       g.setEdge("a", "b", { weight: 2 });
@@ -80,8 +85,8 @@ describe("normalize", function() {
     });
   });
 
-  describe("undo", function() {
-    it("reverses the run operation", function() {
+  describe("undo", () => {
+    it("reverses the run operation", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 2 });
       g.setEdge("a", "b", {});
@@ -94,7 +99,7 @@ describe("normalize", function() {
       expect(g.node("b").rank).to.equal(2);
     });
 
-    it("restores previous edge labels", function() {
+    it("restores previous edge labels", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 2 });
       g.setEdge("a", "b", { foo: "bar" });
@@ -105,14 +110,14 @@ describe("normalize", function() {
       expect(g.edge("a", "b").foo).equals("bar");
     });
 
-    it("collects assigned coordinates into the 'points' attribute", function() {
+    it("collects assigned coordinates into the 'points' attribute", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 2 });
       g.setEdge("a", "b", {});
 
       normalize.run(g);
 
-      var dummyLabel = g.node(g.neighbors("a")[0]);
+      const dummyLabel = g.node(g.neighbors("a")[0]);
       dummyLabel.x = 5;
       dummyLabel.y = 10;
 
@@ -121,22 +126,22 @@ describe("normalize", function() {
       expect(g.edge("a", "b").points).eqls([{ x: 5, y: 10 }]);
     });
 
-    it("merges assigned coordinates into the 'points' attribute", function() {
+    it("merges assigned coordinates into the 'points' attribute", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 4 });
       g.setEdge("a", "b", {});
 
       normalize.run(g);
 
-      var aSucLabel = g.node(g.neighbors("a")[0]);
+      const aSucLabel = g.node(g.neighbors("a")[0]);
       aSucLabel.x = 5;
       aSucLabel.y = 10;
 
-      var midLabel = g.node(g.successors(g.successors("a")[0])[0]);
+      const midLabel = g.node(g.successors(g.successors("a")[0])[0]);
       midLabel.x = 20;
       midLabel.y = 25;
 
-      var bPredLabel = g.node(g.neighbors("b")[0]);
+      const bPredLabel = g.node(g.neighbors("b")[0]);
       bPredLabel.x = 100;
       bPredLabel.y = 200;
 
@@ -146,14 +151,14 @@ describe("normalize", function() {
         .eqls([{ x: 5, y: 10 }, { x: 20, y: 25 }, { x: 100, y: 200 }]);
     });
 
-    it("sets coords and dims for the label, if the edge has one", function() {
+    it("sets coords and dims for the label, if the edge has one", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 2 });
       g.setEdge("a", "b", { width: 10, height: 20, labelRank: 1 });
 
       normalize.run(g);
 
-      var labelNode = g.node(g.successors("a")[0]);
+      const labelNode = g.node(g.successors("a")[0]);
       labelNode.x = 50;
       labelNode.y = 60;
       labelNode.width = 20;
@@ -166,14 +171,14 @@ describe("normalize", function() {
       });
     });
 
-    it("sets coords and dims for the label, if the long edge has one", function() {
+    it("sets coords and dims for the label, if the long edge has one", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 4 });
       g.setEdge("a", "b", { width: 10, height: 20, labelRank: 2 });
 
       normalize.run(g);
 
-      var labelNode = g.node(g.successors(g.successors("a")[0])[0]);
+      const labelNode = g.node(g.successors(g.successors("a")[0])[0]);
       labelNode.x = 50;
       labelNode.y = 60;
       labelNode.width = 20;
@@ -186,7 +191,7 @@ describe("normalize", function() {
       });
     });
 
-    it("restores multi-edges", function() {
+    it("restores multi-edges", () => {
       g.setNode("a", { rank: 0 });
       g.setNode("b", { rank: 2 });
       g.setEdge("a", "b", {}, "bar");
@@ -194,14 +199,14 @@ describe("normalize", function() {
 
       normalize.run(g);
 
-      var outEdges = _.sortBy(g.outEdges("a"), "name");
+      const outEdges = _.sortBy(g.outEdges("a"), "name");
       expect(outEdges).to.have.length(2);
 
-      var barDummy = g.node(outEdges[0].w);
+      const barDummy = g.node(outEdges[0].w);
       barDummy.x = 5;
       barDummy.y = 10;
 
-      var fooDummy = g.node(outEdges[1].w);
+      const fooDummy = g.node(outEdges[1].w);
       fooDummy.x = 15;
       fooDummy.y = 20;
 
@@ -213,7 +218,3 @@ describe("normalize", function() {
     });
   });
 });
-
-function incidentNodes(edge) {
-  return { v: edge.v, w: edge.w };
-}

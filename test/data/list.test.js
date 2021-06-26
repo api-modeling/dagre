@@ -1,26 +1,26 @@
 import { expect } from '@esm-bundle/chai';
-import { List } from "../../src/data/List.js";
+import { List } from '../../src/data/List.js';
 
-describe("data.List", () => {
-  /** @type List */ 
+describe('data.List', () => {
+  /** @type List */
   let list;
 
   beforeEach(() => {
     list = new List();
   });
 
-  describe("dequeue", () => {
-    it("returns undefined with an empty list", () => {
+  describe('dequeue', () => {
+    it('returns undefined with an empty list', () => {
       expect(list.dequeue()).to.be.undefined;
     });
 
-    it("unlinks and returns the first entry", () => {
+    it('unlinks and returns the first entry', () => {
       const obj = {};
       list.enqueue(obj);
       expect(list.dequeue()).to.equal(obj);
     });
 
-    it("unlinks and returns multiple entries in FIFO order", () => {
+    it('unlinks and returns multiple entries in FIFO order', () => {
       const obj1 = {};
       const obj2 = {};
       list.enqueue(obj1);
@@ -30,7 +30,7 @@ describe("data.List", () => {
       expect(list.dequeue()).to.equal(obj2);
     });
 
-    it("unlinks and relinks an entry if it is re-enqueued", () => {
+    it('unlinks and relinks an entry if it is re-enqueued', () => {
       const obj1 = {};
       const obj2 = {};
       list.enqueue(obj1);
@@ -41,7 +41,7 @@ describe("data.List", () => {
       expect(list.dequeue()).to.equal(obj1);
     });
 
-    it("unlinks and relinks an entry if it is enqueued on another list", () => {
+    it('unlinks and relinks an entry if it is enqueued on another list', () => {
       const obj = {};
       const list2 = new List();
       list.enqueue(obj);
@@ -51,11 +51,11 @@ describe("data.List", () => {
       expect(list2.dequeue()).to.equal(obj);
     });
 
-    it("can return a string representation", () => {
+    it('can return a string representation', () => {
       list.enqueue({ entry: 1 });
       list.enqueue({ entry: 2 });
 
-      expect(list.toString()).to.equal("[{\"entry\":1}, {\"entry\":2}]");
+      expect(list.toString()).to.equal('[{"entry":1}, {"entry":2}]');
     });
   });
 });
