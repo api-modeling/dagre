@@ -4,8 +4,12 @@ import * as nestingGraph from '../src/nesting-graph.js';
 
 const { components } = alg;
 
+/** @typedef {import('../src/types').GraphLabel} GraphLabel */
+/** @typedef {import('../src/types').NestedGraphNodeConfig} NestedGraphNodeConfig */
+/** @typedef {import('../src/types').EdgeConfig} EdgeConfig */
+
 describe('rank/nestingGraph', () => {
-  /** @type Graph */
+  /** @type Graph<GraphLabel, NestedGraphNodeConfig, EdgeConfig> */
   let g;
 
   beforeEach(() => {

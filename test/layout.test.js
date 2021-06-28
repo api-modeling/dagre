@@ -3,13 +3,17 @@ import { expect } from '@esm-bundle/chai';
 import { Graph } from '@api-modeling/graphlib';
 import { layout } from "../index.js";
 
+/** @typedef {import('../src/types').GraphLabel} GraphLabel */
+/** @typedef {import('../src/types').NodeConfig} NodeConfig */
+/** @typedef {import('../src/types').EdgeConfig} EdgeConfig */
+
 function extractCoordinates(g) {
   const nodes = g.nodes();
   return _.zipObject(nodes, _.map(nodes, v => _.pick(g.node(v), ["x", "y"])));
 }
 
 describe("layout", () => {
-  /** @type Graph */
+  /** @type Graph<GraphLabel, NodeConfig, EdgeConfig> */
   let g;
 
   beforeEach(() => {

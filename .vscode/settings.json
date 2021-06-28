@@ -18,10 +18,8 @@
     "horiz",
     "indegree",
     "invis",
-    "labeloffest",
     "labeloffset",
     "labelpos",
-    "lablepos",
     "marginx",
     "marginy",
     "minlen",
@@ -31,6 +29,7 @@
     "rankdir",
     "ranksep",
     "selfedge",
+    "sprintf",
     "unsortable"
   ]
 }

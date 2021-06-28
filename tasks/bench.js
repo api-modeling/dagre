@@ -3,8 +3,8 @@
 import Benchmark from "benchmark";
 import pkg from 'sprintf';
 import { Graph } from "@api-modeling/graphlib";
-const rank = require("../src/rank");
-const {layout} = require("..");
+import rank from "../src/rank/index.js";
+import { layout } from "../index.js";
 
 
 const { sprintf } = pkg;

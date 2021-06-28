@@ -2,6 +2,9 @@ import { addDummyNode, addBorderNode } from './util.js';
 
 /** @typedef {import('@api-modeling/graphlib').Graph} Graph */
 /** @typedef {import('@api-modeling/graphlib').NodeIdentifier} NodeIdentifier */
+/** @typedef {import('./types').GraphLabel} GraphLabel */
+/** @typedef {import('./types').NestedGraphNodeConfig} NestedGraphNodeConfig */
+/** @typedef {import('./types').EdgeConfig} EdgeConfig */
 
 /**
  * @param {Graph} g
@@ -23,7 +26,7 @@ function dfs(g, root, nodeSep, weight, height, depths, v) {
 
   const top = addBorderNode(g, "_bt");
   const bottom = addBorderNode(g, "_bb");
-  const label = g.node(v);
+  const label = /** @type NestedGraphNodeConfig */ (g.node(v));
 
   g.setParent(top, v);
   label.borderTop = top;
