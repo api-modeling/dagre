@@ -213,7 +213,10 @@ export function maxRank(g) {
  * @returns {NodeIdentifier[][]}
  */
 export function buildLayerMatrix(g) {
-  const maxRankValue = maxRank(g);
+  let maxRankValue = maxRank(g);
+  if (maxRankValue < 0) {
+    maxRankValue = 0;
+  }
   const layering = new Array(maxRankValue + 1).fill(0).map(() => ([]));
   (g.nodes() || []).forEach((v) => {
     const node = g.node(v);

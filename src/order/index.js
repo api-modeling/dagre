@@ -66,7 +66,11 @@ function sweepLayerGraphs(layerGraphs, biasRight) {
  * @param {Graph} g
  */
 export default function order(g) {
-  const mr = maxRank(g);
+  let mr = maxRank(g);
+  if (mr < 0) {
+    mr = 0;
+  }
+
   const downLayerGraphs = buildLayerGraphs(g, flatRange(1, mr + 1), "inEdges");
   const upLayerGraphs = buildLayerGraphs(g, flatRange(mr - 1, -1, -1), "outEdges");
   
